@@ -87,9 +87,10 @@ This function should only modify configuration layer settings."
                                       undo-tree
                                       json-mode
                                       all-the-icons
+                                      ;; fira-code-mode
                                       ;; activity-watch-mode
                                       ;; feature-mode
-                                      ;; rainbow-delimiters
+                                      rainbow-delimiters
                                       )
 
    ;; A list of packages that cannot be updated.
@@ -200,7 +201,7 @@ It should only modify the values of Spacemacs settings."
    ;; directory. A string value must be a path to an image format supported
    ;; by your Emacs build.
    ;; If the value is nil then no banner is displayed. (default 'official)
-   dotspacemacs-startup-banner 'official
+   dotspacemacs-startup-banner 'random
 
    ;; List of items to show in startup buffer or an association list of
    ;; the form `(list-type . list-size)`. If nil then it is disabled.
@@ -542,13 +543,17 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  ;; (setq image-types (cons 'svg image-types))
+
+  (add-to-list 'image-types 'svg)
   (when (string= system-type "darwin")
     (setq dired-use-ls-dired t
           insert-directory-program "/opt/homebrew/bin/gls"
           dired-listing-switches "-aBhl --group-directories-first"))
   (setq mac-option-modifier 'nil)
-   (setq go-backend 'lsp
-         lsp-go-env '((GOFLAGS . "--tags=integration"))
+  (setq go-backend 'lsp
+         lsp-go-env '((GOFLAGS . "--tags=func_test,integration_test"))
+         lsp-go-use-gofumpt t
          ;; zls-backend 'lsp
          ;; lsp-zig-zls-executable "/usr/local/bin/zls"
          lsp-ui-doc-show-with-cursor t
@@ -561,7 +566,39 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
          ;; org-src-tab-acts-natively t
          ;; org-html-htmlize-output-type 'css
          global-activity-watch-mode t)
-   ;; (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+   ;; (add-hook 'prog-mode-hook 'fira-code-mode)
+  (when (window-system)
+    (set-frame-font "Fira Code"))
+  (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                (36 . ".\\(?:>\\)")
+                (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                (48 . ".\\(?:x[a-zA-Z]\\)")
+                (58 . ".\\(?:::\\|[:=]\\)")
+                (59 . ".\\(?:;;\\|;\\)")
+                (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                (91 . ".\\(?:]\\)")
+                (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                (94 . ".\\(?:=\\)")
+                (119 . ".\\(?:ww\\)")
+                (123 . ".\\(?:-\\)")
+                (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                )
+              ))
+    (dolist (char-regexp alist)
+      (set-char-table-range composition-function-table (car char-regexp)
+                            `([,(cdr char-regexp) 0 font-shape-gstring]))))
    )
 
 
@@ -578,13 +615,15 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-   ;; (setq scroll-conservatively 10)
-   ;; (setq scroll-margin 7)
+   (setq scroll-conservatively 10)
+   (setq scroll-margin 7)
    (spacemacs/enable-transparency)
    (global-undo-tree-mode 1)
+   ;; (pixel-scroll-mode t)
    (setq org-pretty-entities t)
    (setq global-activity-watch-mode t
-         activity-watch-mode t))
+         activity-watch-mode t)
+   )
 
 
 ;; Do not write anything past this comment. This is where Emacs will
